@@ -1,4 +1,4 @@
-# iceberg-to-gcp
+# Local Data Platform Development Stack
 
 Local Apache Iceberg + Polaris development stack for running a catalog-first Iceberg setup with MinIO object storage, Spark compute, and the official Polaris Console.
 
