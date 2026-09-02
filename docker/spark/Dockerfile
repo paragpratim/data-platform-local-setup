@@ -58,4 +58,4 @@ RUN mkdir -p /home/iceberg/notebooks /home/iceberg/warehouse
 WORKDIR /home/iceberg/notebooks
 
 EXPOSE 8888
-ENTRYPOINT ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--ServerApp.token=", "--ServerApp.password="]
+ENTRYPOINT ["/opt/entrypoint.sh"]

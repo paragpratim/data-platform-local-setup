@@ -7,6 +7,9 @@ services:
     container_name: spark-master
     environment:
       SPARK_MODE: master
+      POLARIS_BOOTSTRAP_CATALOG_NAME: ${POLARIS_BOOTSTRAP_CATALOG_NAME}
+      POLARIS_ROOT_CLIENT_ID: ${POLARIS_ROOT_CLIENT_ID}
+      POLARIS_ROOT_CLIENT_SECRET: ${POLARIS_ROOT_CLIENT_SECRET}
     ports:
       - "7077:7077"   # Spark master RPC
       - "8080:8080"   # Spark master UI
@@ -26,6 +29,9 @@ services:
       SPARK_MASTER_URL: spark://spark-master:7077
       SPARK_WORKER_CORES: ${SPARK_WORKER_CORES}
       SPARK_WORKER_MEMORY: ${SPARK_WORKER_MEMORY}
+      POLARIS_BOOTSTRAP_CATALOG_NAME: ${POLARIS_BOOTSTRAP_CATALOG_NAME}
+      POLARIS_ROOT_CLIENT_ID: ${POLARIS_ROOT_CLIENT_ID}
+      POLARIS_ROOT_CLIENT_SECRET: ${POLARIS_ROOT_CLIENT_SECRET}
     depends_on:
       - spark-master
     networks: [data-platform-net]
@@ -37,7 +43,11 @@ services:
       target: notebook
     container_name: jupyter
     environment:
+      SPARK_MODE: notebook
       SPARK_MASTER_URL: spark://spark-master:7077
+      POLARIS_BOOTSTRAP_CATALOG_NAME: ${POLARIS_BOOTSTRAP_CATALOG_NAME}
+      POLARIS_ROOT_CLIENT_ID: ${POLARIS_ROOT_CLIENT_ID}
+      POLARIS_ROOT_CLIENT_SECRET: ${POLARIS_ROOT_CLIENT_SECRET}
     ports:
       - "8888:8888"   # JupyterLab
       - "4040:4040"   # Spark application UI
