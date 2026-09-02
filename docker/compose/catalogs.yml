@@ -38,6 +38,7 @@ services:
       QUARKUS_DATASOURCE_PASSWORD: ${POLARIS_DB_PASSWORD}
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://polaris-db:5432/${POLARIS_DB_NAME}
       polaris.realm-context.realms: ${POLARIS_REALM}
+      # Required for Polaris Console UI
       quarkus.http.cors.enabled: "true"
       quarkus.http.cors.origins: http://localhost:8081
       quarkus.http.cors.methods: GET,POST,PUT,DELETE,PATCH,OPTIONS

@@ -25,6 +25,8 @@ services:
       REALM: ${POLARIS_REALM}
       CATALOG_NAME: ${POLARIS_BOOTSTRAP_CATALOG_NAME}
       STORAGE_LOCATION: s3://${MINIO_BOOTSTRAP_BUCKET}/${POLARIS_BOOTSTRAP_WAREHOUSE_PREFIX}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
     entrypoint: /bin/sh
     command:
@@ -45,8 +47,8 @@ services:
               "readOnly": false,
               "properties": {
                 "default-base-location": "'"$${STORAGE_LOCATION}"'",
-                "table-default.s3.access-key-id": "admin",
-                "table-default.s3.secret-access-key": "password123",
+                "table-default.s3.access-key-id": "'"$${AWS_ACCESS_KEY_ID}"'",
+                "table-default.s3.secret-access-key": "'"$${AWS_SECRET_ACCESS_KEY}"'",
                 "table-default.s3.endpoint": "http://minio:9000",
                 "table-default.s3.path-style-access": "true",
                 "table-default.s3.region": "'"$${AWS_REGION}"'"
