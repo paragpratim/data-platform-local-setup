@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help polaris-console-clone up up-bootstrap bootstrap-only build down clean
+.PHONY: help polaris-console-clone build build-up up up-bootstrap bootstrap-only down clean
 
 DOCKER_COMPOSE ?= docker-compose
 
@@ -15,11 +15,14 @@ polaris-console-clone: ## Clone the Polaris console tools repository if it doesn
 build: polaris-console-clone ## Build the Docker images
 	$(DOCKER_COMPOSE) build
 
-up: build ## Start the Docker containers
+build-up: build ## Build and Start the Docker containers
+	$(DOCKER_COMPOSE) up -d --remove-orphans
+
+up: ## Start the Docker containers
 	$(DOCKER_COMPOSE) up -d --remove-orphans
 
 up-bootstrap: build ## Start the Docker containers and run the bootstrap process
-	$(DOCKER_COMPOSE) up -d --remove-orphans
+	$(MAKE) up
 	$(DOCKER_COMPOSE) -f docker-compose.yml -f docker/compose/bootstrap.yml rm -sf minio-bootstrap polaris-bootstrap || true
 	$(DOCKER_COMPOSE) -f docker-compose.yml -f docker/compose/bootstrap.yml up --force-recreate --abort-on-container-exit minio-bootstrap polaris-bootstrap
 
