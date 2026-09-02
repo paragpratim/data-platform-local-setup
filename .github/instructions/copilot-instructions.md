@@ -6,7 +6,6 @@ This project is created to demonstrate the use of Apache Iceberg with a local de
 - **Polaris**: Acts as the Iceberg REST catalog, managing metadata and schema information.
 - **Spark + Jupyter**: Offers local compute capabilities and notebook access for data analysis.
 - **Polaris Console**: The official web UI for managing the Polaris catalog.
-- **Keycloak**: Provides local identity and access management for the whole stack.
 
 # Project Structure:
 - `docker/compose/`: Contains Docker Compose files for setting up the local development environment.
@@ -14,7 +13,6 @@ This project is created to demonstrate the use of Apache Iceberg with a local de
     - `catalogs.yml`: Configuration for the Polaris catalog service.
     - `spark.yml`: Configuration for the Spark service.
     - `ui.yml`: Configuration for the Polaris Console service.
-    - `keycloak.yml`: Configuration for the Keycloak service.
     - `bootstrap.yml`: Configuration for the MinIO and Polaris bootstrap setup.
 - `docker/spark/`: Contains Dockerfile and related configurations for the Spark service.
 - `docker-compose.yml`: The main Docker Compose file that orchestrates all services.
@@ -23,4 +21,4 @@ This project is created to demonstrate the use of Apache Iceberg with a local de
 - `conf/`: Contains configuration files for the Spark services.
 - `tools/polaris-tools/console/`: Contains the local checkout of the Polaris Console source code.
 - `README.md`: Provides an overview of the project, setup instructions, and usage guidelines.
-- `Taskfile`: Defines tasks for automating setup and management of the local development environment.
+- `Makefile`: Defines tasks for automating setup and management of the local development environment.

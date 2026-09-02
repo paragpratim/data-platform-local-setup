@@ -9,12 +9,21 @@ Local Apache Iceberg + Polaris development stack for running a catalog-first Ice
 - Spark + Jupyter: local compute and notebook access
 - Polaris Console: official web UI for the catalog
 
+## Prerequisites
+
+Before running the stack, install and start Docker Engine-compatible tooling such as:
+
+- Docker Desktop
+- OrbStack (recommended for MacOS)
+
+The project uses Docker Compose, so a running Docker daemon is required before executing any `make` target.
+
 ## One-time setup
 
-The console source is cloned into the repo automatically via Task:
+The console source is cloned into the repo automatically via Make:
 
 ```bash
-task polaris-console-clone
+make polaris-console-clone
 ```
 
 This creates a local checkout under `tools/polaris-tools`.
@@ -24,7 +33,7 @@ This creates a local checkout under `tools/polaris-tools`.
 Start the runtime services only:
 
 ```bash
-task up
+make up
 ```
 
 This rebuilds images and starts the stack in the background.
@@ -32,7 +41,7 @@ This rebuilds images and starts the stack in the background.
 If you also want the initial MinIO bucket and Polaris catalog created once, run:
 
 ```bash
-task up-bootstrap
+make up-bootstrap
 ```
 
 This starts the runtime stack and then runs the one-time bootstrap setup.
@@ -40,7 +49,7 @@ This starts the runtime stack and then runs the one-time bootstrap setup.
 If the stack is already running and you only want to bootstrap the bucket and catalog again, use:
 
 ```bash
-task bootstrap-only
+make bootstrap-only
 ```
 
 ## URLs
@@ -68,12 +77,12 @@ Use the default bootstrap client:
 Stop the running stack:
 
 ```bash
-task down
+make down
 ```
 
 Fully remove the stack and Bootstrap-related containers/volumes:
 
 ```bash
-task clean
+make clean
 ```
 
