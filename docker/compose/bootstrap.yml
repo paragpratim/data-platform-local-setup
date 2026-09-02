@@ -1,0 +1,68 @@
+services:
+  minio-bootstrap:
+    image: minio/mc:latest
+    container_name: minio-bootstrap
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+      mc mb -p local/${MINIO_BOOTSTRAP_BUCKET} &&
+      mc anonymous set download local/${MINIO_BOOTSTRAP_BUCKET} || true
+      "
+    networks: [data-platform-net]
+
+  polaris-bootstrap:
+    image: alpine/curl:8.21.0
+    container_name: polaris-bootstrap
+    depends_on:
+      polaris:
+        condition: service_healthy
+    environment:
+      CLIENT_ID: ${POLARIS_ROOT_CLIENT_ID}
+      CLIENT_SECRET: ${POLARIS_ROOT_CLIENT_SECRET}
+      REALM: ${POLARIS_REALM}
+      CATALOG_NAME: ${POLARIS_BOOTSTRAP_CATALOG_NAME}
+      STORAGE_LOCATION: s3://${MINIO_BOOTSTRAP_BUCKET}/${POLARIS_BOOTSTRAP_WAREHOUSE_PREFIX}
+      AWS_REGION: ${AWS_REGION}
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        set -e
+        apk add --no-cache jq >/dev/null
+        TOKEN=$$(curl --fail-with-body -s -S -X POST http://polaris:8181/api/catalog/v1/oauth/tokens \
+          -H 'Content-Type: application/x-www-form-urlencoded' \
+          -d "grant_type=client_credentials&client_id=$${CLIENT_ID}&client_secret=$${CLIENT_SECRET}&scope=PRINCIPAL_ROLE:ALL" \
+          | jq -r '.access_token')
+        curl --fail-with-body -s -S -X POST http://polaris:8181/api/management/v1/catalogs \
+          -H "Authorization: Bearer $${TOKEN}" -H "Polaris-Realm: $${REALM}" -H "Content-Type: application/json" \
+          -d '{
+            "catalog": {
+              "name": "'"$${CATALOG_NAME}"'",
+              "type": "INTERNAL",
+              "readOnly": false,
+              "properties": {
+                "default-base-location": "'"$${STORAGE_LOCATION}"'",
+                "table-default.s3.access-key-id": "admin",
+                "table-default.s3.secret-access-key": "password123",
+                "table-default.s3.endpoint": "http://minio:9000",
+                "table-default.s3.path-style-access": "true",
+                "table-default.s3.region": "'"$${AWS_REGION}"'"
+              },
+              "storageConfigInfo": {
+                "storageType": "S3",
+                "allowedLocations": ["'"$${STORAGE_LOCATION}"'"],
+                "endpoint": "http://minio:9000",
+                "endpointInternal": "http://minio:9000",
+                "pathStyleAccess": true,
+                "region": "'"$${AWS_REGION}"'"
+              }
+            }
+          }' || echo "(catalog may already exist, continuing)"
+        curl --fail-with-body -s -S -X PUT \
+          "http://polaris:8181/api/management/v1/catalogs/$${CATALOG_NAME}/catalog-roles/catalog_admin/grants" \
+          -H "Authorization: Bearer $${TOKEN}" -H "Polaris-Realm: $${REALM}" -H "Content-Type: application/json" \
+          -d '{"type": "catalog", "privilege": "CATALOG_MANAGE_CONTENT"}' || true
+    networks: [data-platform-net]

@@ -1,0 +1,56 @@
+services:
+  # Small durable metastore for Polaris catalog metadata.
+  polaris-db:
+    image: postgres:16-alpine
+    container_name: polaris-db
+    environment:
+      POSTGRES_DB: ${POLARIS_DB_NAME}
+      POSTGRES_USER: ${POLARIS_DB_USER}
+      POSTGRES_PASSWORD: ${POLARIS_DB_PASSWORD}
+    volumes:
+      - polaris-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POLARIS_DB_USER} -d ${POLARIS_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [data-platform-net]
+
+  # --- Apache Polaris: Iceberg REST catalog with RBAC (no bundled web UI; use its REST/management API) ---
+  polaris:
+    image: apache/polaris:latest
+    container_name: polaris
+    depends_on:
+      polaris-db:
+        condition: service_healthy
+    ports:
+      - "8281:8181"    # Iceberg REST + management API
+      - "8282:8182"    # Health/metrics
+    environment:
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      POLARIS_BOOTSTRAP_CREDENTIALS: ${POLARIS_REALM},${POLARIS_ROOT_CLIENT_ID},${POLARIS_ROOT_CLIENT_SECRET}
+      POLARIS_PERSISTENCE_TYPE: relational-jdbc
+      POLARIS_PERSISTENCE_AUTO_BOOTSTRAP_TYPES: relational-jdbc
+      QUARKUS_DATASOURCE_DB_KIND: postgresql
+      QUARKUS_DATASOURCE_USERNAME: ${POLARIS_DB_USER}
+      QUARKUS_DATASOURCE_PASSWORD: ${POLARIS_DB_PASSWORD}
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://polaris-db:5432/${POLARIS_DB_NAME}
+      polaris.realm-context.realms: ${POLARIS_REALM}
+      quarkus.http.cors.enabled: "true"
+      quarkus.http.cors.origins: http://localhost:8081
+      quarkus.http.cors.methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+      quarkus.http.cors.headers: Content-Type,Authorization,Polaris-Realm,X-Request-ID
+      quarkus.http.cors.exposed-headers: "*"
+      quarkus.otel.sdk.disabled: "true"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8182/q/health"]
+      interval: 2s
+      timeout: 10s
+      retries: 30
+      start_period: 10s
+    networks: [data-platform-net]
+
+volumes:
+  polaris-db-data:

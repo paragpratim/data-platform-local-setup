@@ -1,0 +1,10 @@
+include:
+  - docker/compose/minio.yml
+  - docker/compose/catalogs.yml
+  - docker/compose/spark.yml
+  - docker/compose/ui.yml
+  - docker/compose/keycloak.yml
+
+networks:
+  data-platform-net:
+    driver: bridge

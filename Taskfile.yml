@@ -1,0 +1,54 @@
+version: '3'
+
+tasks:
+  polaris-console-clone:
+    desc: Clone the upstream Polaris Console source into the repo so it can be built locally
+    cmds:
+      - mkdir -p tools
+      - if [ ! -d "tools/polaris-tools" ]; then git clone --depth 1 https://github.com/apache/polaris-tools.git tools/polaris-tools; fi
+
+  up:
+    desc: Rebuild images and start only the runtime stack without bootstrap initialization
+    deps:
+      - polaris-console-clone
+    cmds:
+      - task: build
+      - docker-compose up -d --remove-orphans
+
+  up-bootstrap:
+    desc: Rebuild images, start the runtime stack, and then run the one-time MinIO and Polaris bootstrap setup
+    deps:
+      - polaris-console-clone
+    cmds:
+      - task: build
+      - docker-compose up -d --remove-orphans
+      - docker-compose -f docker-compose.yml -f docker/compose/bootstrap.yml rm -sf minio-bootstrap polaris-bootstrap || true
+      - docker-compose -f docker-compose.yml -f docker/compose/bootstrap.yml up --force-recreate --abort-on-container-exit minio-bootstrap polaris-bootstrap
+
+  bootstrap-only:
+    desc: Run only the MinIO and Polaris bootstrap setup assuming the stack is already running
+    deps:
+      - polaris-console-clone
+    cmds:
+      - docker-compose -f docker-compose.yml -f docker/compose/bootstrap.yml rm -sf minio-bootstrap polaris-bootstrap || true
+      - docker-compose -f docker-compose.yml -f docker/compose/bootstrap.yml up --force-recreate --abort-on-container-exit minio-bootstrap polaris-bootstrap
+
+  build:
+    desc: Build Docker images
+    deps:
+      - polaris-console-clone
+    cmds:
+      - docker-compose build
+
+  down:
+    desc: Stop Docker Compose and remove any lingering bootstrap containers
+    cmds:
+      - docker-compose down
+      - docker-compose -f docker-compose.yml -f docker/compose/bootstrap.yml rm -sf minio-bootstrap polaris-bootstrap || true
+
+  clean:
+    desc: Clean backend and stop containers, including bootstrap jobs
+    cmds:
+      - docker-compose down -v
+      - docker-compose -f docker-compose.yml -f docker/compose/bootstrap.yml down -v || true
+      - docker-compose -f docker-compose.yml -f docker/compose/bootstrap.yml rm -sf minio-bootstrap polaris-bootstrap || true

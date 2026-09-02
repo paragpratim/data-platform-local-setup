@@ -1,0 +1,18 @@
+services:
+  polaris-console:
+    build:
+      context: ${POLARIS_CONSOLE_SOURCE_DIR:-../../tools/polaris-tools/console}
+      dockerfile: docker/Dockerfile
+    image: apache/polaris-console:local
+    container_name: polaris-console
+    environment:
+      VITE_POLARIS_API_URL: http://localhost:8281
+      VITE_POLARIS_REALM: ${POLARIS_REALM}
+      VITE_POLARIS_PRINCIPAL_SCOPE: PRINCIPAL_ROLE:ALL
+      VITE_OAUTH_TOKEN_URL: http://localhost:8281/api/catalog/v1/oauth/tokens
+      VITE_POLARIS_REALM_HEADER_NAME: Polaris-Realm
+    ports:
+      - "8081:8080"
+    depends_on:
+      - polaris
+    networks: [data-platform-net]
