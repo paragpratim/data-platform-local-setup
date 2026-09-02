@@ -14,9 +14,38 @@ Local Apache Iceberg + Polaris development stack for running a catalog-first Ice
 Before running the stack, install and start Docker Engine-compatible tooling such as:
 
 - Docker Desktop
-- OrbStack (recommended for MacOS)
+- OrbStack (recommended for macOS)
 
 The project uses Docker Compose, so a running Docker daemon is required before executing any `make` target.
+
+## Local environment setup
+
+This repo expects a local `.env` file in the project root. A checked-in template is provided at [.env.example](.env.example). To create your local config:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your local values. The real `.env` file is gitignored and should not be committed.
+
+## Available commands
+
+Running `make` by itself shows the list of project targets.
+
+```bash
+make
+```
+
+Common commands:
+
+```bash
+make build
+make up
+make up-bootstrap
+make bootstrap-only
+make down
+make clean
+```
 
 ## Run the stack
 
@@ -33,8 +62,6 @@ If you also want the initial MinIO bucket and Polaris catalog created once, run:
 ```bash
 make up-bootstrap
 ```
-
-This starts the runtime stack and then runs the one-time bootstrap setup.
 
 If the stack is already running and you only want to bootstrap the bucket and catalog again, use:
 
@@ -55,12 +82,12 @@ make bootstrap-only
 
 Use the default bootstrap client:
 
-- Realm: `<POLARIS_REALM>`
-- Client ID: `<POLARIS_CLIENT_ID>`
-- Client Secret: `<POLARIS_CLIENT_SECRET>`
+- Realm: `<POLARIS_REALM>` from `.env`
+- Client ID: `<POLARIS_ROOT_CLIENT_ID>` from `.env`
+- Client Secret: `<POLARIS_ROOT_CLIENT_SECRET>` from `.env`
 - Scope: `PRINCIPAL_ROLE:ALL`
 
-> Note: the values in `.env` are for local development and education only. Do not use these credentials or environment values directly in production environments.
+> Note: the values in `.env` are for local development only. Do not use these credentials or environment values directly in production environments.
 
 ## Stop / clean up
 
@@ -70,9 +97,15 @@ Stop the running stack:
 make down
 ```
 
-Fully remove the stack and Bootstrap-related containers/volumes:
+Fully remove the stack and bootstrap-related containers/volumes:
 
 ```bash
 make clean
 ```
+
+## Notes
+
+- `.env` is intentionally local-only and should stay out of version control.
+- `.env.example` is the safe file to commit to the repository.
+- The workspace includes a `tools` directory for the Polaris Console source; it is created automatically when needed by the `polaris-console-clone` target.
 
