@@ -18,16 +18,6 @@ Before running the stack, install and start Docker Engine-compatible tooling suc
 
 The project uses Docker Compose, so a running Docker daemon is required before executing any `make` target.
 
-## One-time setup
-
-The console source is cloned into the repo automatically via Make:
-
-```bash
-make polaris-console-clone
-```
-
-This creates a local checkout under `tools/polaris-tools`.
-
 ## Run the stack
 
 Start the runtime services only:
@@ -65,9 +55,9 @@ make bootstrap-only
 
 Use the default bootstrap client:
 
-- Realm: `POLARIS`
-- Client ID: `root`
-- Client Secret: `s3cr3t`
+- Realm: `<POLARIS_REALM>`
+- Client ID: `<POLARIS_CLIENT_ID>`
+- Client Secret: `<POLARIS_CLIENT_SECRET>`
 - Scope: `PRINCIPAL_ROLE:ALL`
 
 > Note: the values in `.env` are for local development and education only. Do not use these credentials or environment values directly in production environments.
