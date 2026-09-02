@@ -17,6 +17,7 @@ This project is created to demonstrate the use of Apache Iceberg with a local de
 - `docker/spark/`: Contains Dockerfile and related configurations for the Spark service.
 - `docker-compose.yml`: The main Docker Compose file that orchestrates all services.
 - `.env`: Environment variables for configuring the services.
+- `.env.example`: Example environment variables for configuring the services.
 - `notebooks/`: Contains Jupyter notebooks for data analysis and experimentation.
 - `conf/`: Contains configuration files for the Spark services.
 - `tools/polaris-tools/console/`: Contains the local checkout of the Polaris Console source code.
